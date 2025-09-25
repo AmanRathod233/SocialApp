@@ -1,33 +1,38 @@
 import React, { useState } from 'react';
-import { Link,useNavigate } from 'react-router-dom';
-import axios from '../../utils/axios'; // Make sure axios is configured properly
+import { Link, useNavigate } from 'react-router-dom';
+import axios from '../../utils/axios'; // Ensure axios has baseURL set
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState('');
-  const navigate = useNavigate(); // ✅
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    setMessage('');
+    setLoading(true);
 
     try {
-      const res = await axios.post('/auth/login', {
-        email,
-        password,
-      });
+      const res = await axios.post('/auth/login', { email, password });
 
       console.log('✅ Login success:', res.data);
-      setMessage('Login successful!');
-      
-      // Optionally store token if needed
-      localStorage.setItem('token', res.data.token);
 
-      // ✅ Redirect to home
-      navigate('/home');
+      // Save token and user info
+      localStorage.setItem('token', res.data.token);
+      localStorage.setItem('user', JSON.stringify(res.data.user));
+
+      // Show success message from backend
+      setMessage(res.data.message || 'Login successful!');
+
+      // Redirect to home after a short delay
+      setTimeout(() => navigate('/home'), 1000);
     } catch (err) {
-      console.error('❌ Login error:', err.response?.data?.message || err.message);
-      setMessage('Invalid email or password');
+      console.error('❌ Login error:', err);
+      setMessage(err.response?.data?.message || 'Invalid email or password');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -51,7 +56,9 @@ const Login = () => {
           required
           style={styles.input}
         />
-        <button type="submit" style={styles.button}>Login</button>
+        <button type="submit" style={styles.button} disabled={loading}>
+          {loading ? 'Logging in...' : 'Login'}
+        </button>
       </form>
 
       {message && <p style={styles.message}>{message}</p>}
@@ -63,12 +70,11 @@ const Login = () => {
   );
 };
 
-
 const styles = {
   container: { maxWidth: '400px', margin: '100px auto', textAlign: 'center' },
   form: { display: 'flex', flexDirection: 'column', gap: '10px' },
   input: { padding: '10px', fontSize: '16px' },
-  button: { padding: '10px', fontSize: '16px', background: '#333', color: '#fff' },
+  button: { padding: '10px', fontSize: '16px', background: '#333', color: '#fff', cursor: 'pointer' },
   message: { marginTop: '15px', color: 'green', fontWeight: 'bold' },
   linkText: { marginTop: '10px' },
 };
