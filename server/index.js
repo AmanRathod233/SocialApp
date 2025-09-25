@@ -16,6 +16,11 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 30000;
 
+const allowedOrigins = [
+  "https://social-app-yqn4.vercel.app",
+  "http://localhost:3000" // dev mode
+];
+
 // ✅ Middleware
 app.use(
   cors({
