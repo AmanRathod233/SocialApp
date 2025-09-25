@@ -19,6 +19,7 @@ const PORT = process.env.PORT || 30000;
 // ✅ Middleware
 app.use(cors({
   origin: "https://social-app-yqn4.vercel.app/login", // frontend URL
+  methods : [GET , POST].
   credentials: true,
 }));
 app.use(express.json());
