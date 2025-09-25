@@ -17,12 +17,18 @@ const app = express();
 const PORT = process.env.PORT || 30000;
 
 // ✅ Middleware
-app.use(cors({
-  origin: "https://social-app-yqn4.vercel.app/login", // frontend URL
-  methods : [GET , POST].
-  credentials: true,
-}));
+app.use(
+  cors({
+    origin: "https://social-app-yqn4.vercel.app", // frontend domain only
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    credentials: true, // allow cookies/auth headers if needed
+  })
+);
+
+// Handle preflight requests
+app.options("*", cors());
 app.use(express.json());
+
 
 // ✅ Logging
 app.use((req, res, next) => {
