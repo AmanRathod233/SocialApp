@@ -9,18 +9,20 @@ import path from "path";
 import authRoutes from "./routes/authRoute.js";
 import metaRoutes from "./routes/metaRoute.js";
 import instagramRoutes from "./routes/instaRoutes.js";
-import facebookRoutes from "./routes/fbRoutes.js"; // ✅ NEW for FB posts
+import facebookRoutes from "./routes/fbRoutes.js"; 
 
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 30000;
+const PORT = process.env.PORT || 3000;
 
 // ✅ Middleware
 app.use(cors({
-  origin: "https://social-app-yqn4.vercel.app", // frontend URL
+  origin: "https://social-app-yqn4.vercel.app", // only your frontend
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   credentials: true,
 }));
+app.options("*", cors()); // handle preflight requests
 app.use(express.json());
 
 // ✅ Logging
@@ -33,7 +35,7 @@ app.use((req, res, next) => {
 app.use("/api/auth", authRoutes);
 app.use("/api/meta", metaRoutes);
 app.use("/api/instagram", instagramRoutes);
-app.use("/api/facebook", facebookRoutes); // ✅ NEW
+app.use("/api/facebook", facebookRoutes);
 
 // ✅ MongoDB connection
 mongoose.connect(process.env.MONGO_URI, {
@@ -50,3 +52,5 @@ mongoose.connect(process.env.MONGO_URI, {
     console.error("❌ MongoDB connection error:", err.message);
     process.exit(1);
   });
+
+export default app; // ✅ Needed if deployed on Vercel as serverless
