@@ -23,7 +23,7 @@ const Home = () => {
       navigate("/login");
       return;
     }
-    window.location.href = `http://localhost:30000/api/meta/auth?token=${token}`;
+    window.location.href = `https://social-app-ku95.vercel.app//api/meta/auth?token=${token}`;
   };
 
   const handleConnectInstagram = () => {
@@ -33,7 +33,7 @@ const Home = () => {
       navigate("/login");
       return;
     }
-    window.location.href = `http://localhost:30000/api/instagram/auth?token=${token}`;
+    window.location.href = `https://social-app-ku95.vercel.app//api/instagram/auth?token=${token}`;
   };
 
   const handleConnectFacebookPage = () => {
@@ -43,7 +43,7 @@ const Home = () => {
       navigate("/login");
       return;
     }
-    window.location.href = `http://localhost:30000/api/facebook/connectPage?token=${token}`;
+    window.location.href = `https://social-app-ku95.vercel.app/api/facebook/connectPage?token=${token}`;
   };
 
   // ======================= INFO BUTTONS =======================
@@ -53,7 +53,7 @@ const Home = () => {
 
     try {
       setLoading(true);
-      const response = await axios.get(`http://localhost:30000/api/instagram/getAccountInfo`, {
+      const response = await axios.get(`https://social-app-ku95.vercel.app/api/instagram/getAccountInfo`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -74,7 +74,7 @@ const Home = () => {
 
     try {
       setLoading(true);
-      const response = await axios.get(`http://localhost:30000/api/facebook/getPageInfo`, {
+      const response = await axios.get(`https://social-app-ku95.vercel.app/api/facebook/getPageInfo`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -140,7 +140,7 @@ const Home = () => {
     }
 
     try {
-      await axios.post(`http://localhost:30000${endpoint}`, requestData, {
+      await axios.post(`https://social-app-ku95.vercel.app${endpoint}`, requestData, {
         headers: requestHeaders,
         timeout: 120000,
       });
