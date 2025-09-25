@@ -14,13 +14,23 @@ import facebookRoutes from "./routes/fbRoutes.js"; // ✅ NEW for FB posts
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 30000;
+const PORT = process.env.PORT || 3000;
 
 // ✅ Middleware
 app.use(cors({
-  origin: "https://social-app-yqn4.vercel.app/", // frontend URL
+  origin: "https://social-app-yqn4.vercel.app", // frontend URL
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   credentials: true,
 }));
+
+// ✅ Handle preflight OPTIONS requests globally
+app.options("*", cors({
+  origin: "https://social-app-yqn4.vercel.app",
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  credentials: true,
+}));
+
+// ✅ Body parser
 app.use(express.json());
 
 // ✅ Logging
