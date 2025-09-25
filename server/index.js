@@ -1,4 +1,3 @@
-// server.js
 import dotenv from "dotenv";
 import express from "express";
 import mongoose from "mongoose";
@@ -9,26 +8,28 @@ import path from "path";
 import authRoutes from "./routes/authRoute.js";
 import metaRoutes from "./routes/metaRoute.js";
 import instagramRoutes from "./routes/instaRoutes.js";
-import facebookRoutes from "./routes/fbRoutes.js"; // ✅ NEW for FB posts
+import facebookRoutes from "./routes/fbRoutes.js";
 
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// ✅ Middleware
+// ✅ CORS middleware
+const allowedOrigins = ["https://social-app-yqn4.vercel.app"];
 app.use(cors({
-  origin: "https://social-app-yqn4.vercel.app", // frontend URL
+  origin: allowedOrigins,
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   credentials: true,
 }));
 
-// ✅ Handle preflight OPTIONS requests globally
-app.options("*", cors({
-  origin: "https://social-app-yqn4.vercel.app",
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  credentials: true,
-}));
+// ✅ Handle preflight OPTIONS globally
+app.options("*", (req, res) => {
+  res.header("Access-Control-Allow-Origin", allowedOrigins.join(","));
+  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+  res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  res.sendStatus(200);
+});
 
 // ✅ Body parser
 app.use(express.json());
@@ -43,7 +44,7 @@ app.use((req, res, next) => {
 app.use("/api/auth", authRoutes);
 app.use("/api/meta", metaRoutes);
 app.use("/api/instagram", instagramRoutes);
-app.use("/api/facebook", facebookRoutes); // ✅ NEW
+app.use("/api/facebook", facebookRoutes);
 
 // ✅ MongoDB connection
 mongoose.connect(process.env.MONGO_URI, {
