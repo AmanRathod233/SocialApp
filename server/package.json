@@ -5,7 +5,9 @@
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "nodemon index.js"
+    "dev": "nodemon index.js",
+    "build": "node build.js"
+    
   },
   "keywords": [],
   "author": "",
@@ -25,6 +27,8 @@
     "multer": "^2.0.2"
   },
   "devDependencies": {
+    "esbuild": "^0.25.9",
+    "glob": "^11.0.3",
     "nodemon": "^3.1.10"
   }
 }

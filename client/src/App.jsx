@@ -9,7 +9,7 @@ import PrivacyPolicy from "./pages/privacy";
 
 function App() {
   return (
-    <Router basename="/socialapp"> {/* 👈 Add basename here */}
+    <Router basename="/"> {/* 👈 Add basename here */}
       <Routes>
         <Route path="/" element={<Navigate to="/login" />} />
         <Route path="/login" element={<Login />} />

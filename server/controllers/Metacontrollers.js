@@ -131,7 +131,7 @@ export const metaAuthCallback = async (req, res) => {
 
     console.log("✅ MongoDB updated successfully:", updatedUser.meta);
 
-    res.redirect("http://localhost:5173/socialapp/home");
+    res.redirect("http://localhost:5173/home");
   } catch (error) {
     console.error("❌ Meta auth error:", error.response?.data || error.message);
     res.status(500).send("Meta auth failed");

@@ -150,9 +150,9 @@ const Home = () => {
       setFile(null);
     } catch (err) {
       const errorMessage = err.response?.data?.error ||
-                          err.response?.data?.message ||
-                          err.message ||
-                          "Upload failed";
+        err.response?.data?.message ||
+        err.message ||
+        "Upload failed";
       alert(`❌ ${errorMessage}`);
     } finally {
       setLoading(false);
@@ -169,7 +169,7 @@ const Home = () => {
         Connect to Facebook / Meta
       </button>
 
-          <button onClick={handleGetFacebookPageInfo} disabled={loading} style={{ marginLeft: "10px", padding: "10px 20px", fontSize: "16px", backgroundColor: loading ? "#ccc" : "#3b5998", color: "#fff", border: "none", borderRadius: "5px", cursor: loading ? "not-allowed" : "pointer" }}>
+      <button onClick={handleGetFacebookPageInfo} disabled={loading} style={{ marginLeft: "10px", padding: "10px 20px", fontSize: "16px", backgroundColor: loading ? "#ccc" : "#3b5998", color: "#fff", border: "none", borderRadius: "5px", cursor: loading ? "not-allowed" : "pointer" }}>
         Get Facebook Page Info
       </button>
 

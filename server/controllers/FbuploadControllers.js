@@ -15,18 +15,18 @@ export const getPageConfig = async (userId) => {
     console.log("Getting page config for userId:", userId);
     const user = await User.findById(userId);
     console.log("User found:", !!user);
-    
+
     if (!user || !user.meta?.pages?.length) {
       console.error("No page config found in DB for user:", userId);
       throw new Error("No page config found in DB");
     }
-    
+
     const page = user.meta.pages.find((p) => p.accessToken && p.id);
     if (!page) {
       console.error("No valid page found in DB. Pages:", user.meta.pages);
       throw new Error("No valid page found in DB");
     }
-    
+
     console.log("Page config found:", { pageId: page.id, hasToken: !!page.accessToken });
     return { accessToken: page.accessToken, pageId: page.id };
   } catch (error) {
@@ -39,7 +39,7 @@ export const getPageConfig = async (userId) => {
 const getUserIdFromReq = (req) => {
   let userId = req.user?._id || req.params?.userId || req.body?.userId;
   console.log("Initial userId from req:", userId);
-  
+
   if (!userId) {
     try {
       const token = req.headers["authorization"]?.split(" ")[1];
@@ -53,7 +53,7 @@ const getUserIdFromReq = (req) => {
       console.error("JWT decode error:", tokenError.message);
     }
   }
-  
+
   console.log("Final userId:", userId);
   return userId;
 };
@@ -63,22 +63,22 @@ const prepareFilePath = (file) => {
   console.log("Preparing file path for:", file.originalname);
   let filePath = file.path;
   let ext = path.extname(file.originalname) || ".mp4"; // default mp4
-  
+
   if (!filePath.endsWith(ext)) {
     const newPath = filePath + ext;
     console.log("Renaming file from", filePath, "to", newPath);
     fs.renameSync(filePath, newPath);
     filePath = newPath;
   }
-  
+
   const resolvedPath = path.resolve(filePath);
   console.log("Final file path:", resolvedPath);
-  
+
   // Check if file exists
   if (!fs.existsSync(resolvedPath)) {
     throw new Error(`File does not exist: ${resolvedPath}`);
   }
-  
+
   return resolvedPath;
 };
 
@@ -117,7 +117,7 @@ export const uploadTextPostToFacebook = async (req, res) => {
       console.error("❌ No userId found");
       return res.status(400).json({ success: false, error: "User authentication required" });
     }
-    
+
     if (!caption || caption.trim() === '') {
       console.error("❌ No caption provided");
       return res.status(400).json({ success: false, error: "Caption is required for text posts" });
@@ -128,9 +128,9 @@ export const uploadTextPostToFacebook = async (req, res) => {
     console.log("✅ Page config retrieved:", { pageId, hasToken: !!accessToken });
 
     const url = `https://graph.facebook.com/v19.0/${pageId}/feed`;
-    const postData = { 
-      message: caption.trim(), 
-      access_token: accessToken 
+    const postData = {
+      message: caption.trim(),
+      access_token: accessToken
     };
 
     console.log("Posting to Facebook:");
@@ -151,15 +151,15 @@ export const uploadTextPostToFacebook = async (req, res) => {
     console.error("Error response status:", err.response?.status);
     console.error("Error response data:", err.response?.data);
     console.error("Full error:", err);
-    
-    const errorMessage = err.response?.data?.error?.message || 
-                        err.response?.data?.message || 
-                        err.message || 
-                        "Failed to post text";
-    
+
+    const errorMessage = err.response?.data?.error?.message ||
+      err.response?.data?.message ||
+      err.message ||
+      "Failed to post text";
+
     // Send more specific error info for debugging
-    res.status(500).json({ 
-      success: false, 
+    res.status(500).json({
+      success: false,
       error: errorMessage,
       details: {
         type: err.name,
@@ -174,7 +174,7 @@ export const uploadTextPostToFacebook = async (req, res) => {
 // Upload Facebook REEL - Simplified approach using standard video API
 export const uploadReelToFacebook = async (req, res) => {
   let filePath = null;
-  
+
   try {
     console.log("=== REEL UPLOAD START ===");
     console.log("File info:", req.file ? {
@@ -192,7 +192,7 @@ export const uploadReelToFacebook = async (req, res) => {
     if (!userId) {
       return res.status(400).json({ success: false, error: "User authentication required" });
     }
-    
+
     if (!videoFile) {
       return res.status(400).json({ success: false, error: "Video file is required for reels" });
     }
@@ -209,11 +209,11 @@ export const uploadReelToFacebook = async (req, res) => {
     form.append("access_token", accessToken);
     form.append("description", caption || "");
     form.append("source", fs.createReadStream(filePath));
-    
+
     // This tells Facebook to treat it as a reel
     form.append("is_reel", "true");
     // Alternative: use the reel-specific endpoint but with simpler parameters
-    
+
     const url = `https://graph-video.facebook.com/v19.0/${pageId}/videos`;
     console.log("Posting to Facebook API:", url);
 
@@ -226,29 +226,29 @@ export const uploadReelToFacebook = async (req, res) => {
 
     console.log("✅ Reel upload response:", response.data);
     await cleanupFile(filePath);
-    
+
     res.status(200).json({ success: true, data: response.data });
 
   } catch (err) {
     console.error("=== REEL UPLOAD ERROR ===");
     console.error("Error message:", err.message);
     console.error("Error response data:", err.response?.data);
-    
+
     if (filePath) await cleanupFile(filePath);
-    
-    const errorMessage = err.response?.data?.error?.message || 
-                        err.response?.data?.message || 
-                        err.message || 
-                        "Failed to upload reel";
-    
-    res.status(500).json({ 
-      success: false, 
+
+    const errorMessage = err.response?.data?.error?.message ||
+      err.response?.data?.message ||
+      err.message ||
+      "Failed to upload reel";
+
+    res.status(500).json({
+      success: false,
       error: errorMessage,
       details: {
         fbError: err.response?.data,
         possibleCauses: [
           "Video format not supported for reels (use MP4)",
-          "Video too long (reels max ~90 seconds)", 
+          "Video too long (reels max ~90 seconds)",
           "Page doesn't have reel publishing permissions",
           "Video aspect ratio not suitable (vertical preferred)",
           "Access token missing required permissions"
@@ -261,11 +261,11 @@ export const uploadReelToFacebook = async (req, res) => {
 // Upload normal VIDEO to Facebook
 export const uploadVideoToFacebook = async (req, res) => {
   let filePath = null;
-  
+
   try {
     console.log("=== VIDEO UPLOAD START ===");
     console.log("Request body:", req.body);
-    console.log("File info:", req.file ? { 
+    console.log("File info:", req.file ? {
       fieldname: req.file.fieldname,
       originalname: req.file.originalname,
       mimetype: req.file.mimetype,
@@ -281,7 +281,7 @@ export const uploadVideoToFacebook = async (req, res) => {
       console.error("No userId found in request");
       return res.status(400).json({ success: false, error: "User authentication required" });
     }
-    
+
     if (!videoFile) {
       console.error("No video file in request");
       throw new Error("No video file uploaded");
@@ -294,21 +294,21 @@ export const uploadVideoToFacebook = async (req, res) => {
     const form = new FormData();
     form.append("access_token", accessToken);
     form.append("description", caption || "");
-    
+
     const fileStream = fs.createReadStream(filePath);
     form.append("source", fileStream);
 
     const url = `https://graph-video.facebook.com/v19.0/${pageId}/videos`;
     console.log("Posting to Facebook API:", url);
 
-    const response = await axios.post(url, form, { 
+    const response = await axios.post(url, form, {
       headers: form.getHeaders(),
       timeout: 120000 // 2 minute timeout for larger videos
     });
 
     console.log("Facebook API response:", response.data);
     await cleanupFile(filePath);
-    
+
     res.status(200).json({ success: true, data: response.data });
 
   } catch (err) {
@@ -317,16 +317,16 @@ export const uploadVideoToFacebook = async (req, res) => {
     console.error("Error response data:", err.response?.data);
     console.error("Error status:", err.response?.status);
     console.error("Full error:", err);
-    
+
     if (filePath) await cleanupFile(filePath);
-    
-    const errorMessage = err.response?.data?.error?.message || 
-                        err.response?.data?.message || 
-                        err.message || 
-                        "Unknown error occurred";
-    
-    res.status(500).json({ 
-      success: false, 
+
+    const errorMessage = err.response?.data?.error?.message ||
+      err.response?.data?.message ||
+      err.message ||
+      "Unknown error occurred";
+
+    res.status(500).json({
+      success: false,
       error: errorMessage,
       details: process.env.NODE_ENV === 'development' ? {
         responseData: err.response?.data,
@@ -339,11 +339,11 @@ export const uploadVideoToFacebook = async (req, res) => {
 // Upload IMAGE to Facebook
 export const uploadImageToFacebook = async (req, res) => {
   let filePath = null;
-  
+
   try {
     console.log("=== IMAGE UPLOAD START ===");
     console.log("Request body:", req.body);
-    console.log("File info:", req.file ? { 
+    console.log("File info:", req.file ? {
       fieldname: req.file.fieldname,
       originalname: req.file.originalname,
       mimetype: req.file.mimetype,
@@ -359,7 +359,7 @@ export const uploadImageToFacebook = async (req, res) => {
       console.error("No userId found in request");
       return res.status(400).json({ success: false, error: "User authentication required" });
     }
-    
+
     if (!imageFile) {
       console.error("No image file in request");
       throw new Error("No image file uploaded");
@@ -372,21 +372,21 @@ export const uploadImageToFacebook = async (req, res) => {
     const form = new FormData();
     form.append("access_token", accessToken);
     form.append("caption", caption || "");
-    
+
     const fileStream = fs.createReadStream(filePath);
     form.append("source", fileStream);
 
     const url = `https://graph.facebook.com/v19.0/${pageId}/photos`;
     console.log("Posting to Facebook API:", url);
 
-    const response = await axios.post(url, form, { 
+    const response = await axios.post(url, form, {
       headers: form.getHeaders(),
       timeout: 60000 // 60 second timeout
     });
 
     console.log("Facebook API response:", response.data);
     await cleanupFile(filePath);
-    
+
     res.status(200).json({ success: true, data: response.data });
 
   } catch (err) {
@@ -394,16 +394,16 @@ export const uploadImageToFacebook = async (req, res) => {
     console.error("Error message:", err.message);
     console.error("Error response data:", err.response?.data);
     console.error("Error status:", err.response?.status);
-    
+
     if (filePath) await cleanupFile(filePath);
-    
-    const errorMessage = err.response?.data?.error?.message || 
-                        err.response?.data?.message || 
-                        err.message || 
-                        "Unknown error occurred";
-    
-    res.status(500).json({ 
-      success: false, 
+
+    const errorMessage = err.response?.data?.error?.message ||
+      err.response?.data?.message ||
+      err.message ||
+      "Unknown error occurred";
+
+    res.status(500).json({
+      success: false,
       error: errorMessage,
       details: process.env.NODE_ENV === 'development' ? {
         responseData: err.response?.data,
