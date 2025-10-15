@@ -1,4 +1,8 @@
 {
+  "scripts": {
+    "build": "esbuild server/server.js --bundle --platform=node --outfile=server/build.js",
+    "start": "node server/build.js"
+  },
   "dependencies": {
     "cors": "^2.8.5",
     "esbuild": "^0.25.11"
