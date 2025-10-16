@@ -9,6 +9,60 @@ import User from "../models/user.js";
 const unlinkFile = promisify(fs.unlink);
 
 
+export const getFacebookPageInfo = async (req, res) => {
+  try {
+    console.log("🔹 Fetching Facebook Page Info...");
+
+    let userId = req.user?._id || req.query.userId;
+
+    // ✅ Decode JWT manually (if no middleware)
+    if (!userId) {
+      const authHeader = req.headers["authorization"];
+      const token = authHeader && authHeader.split(" ")[1];
+      if (token) {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        userId = decoded.id || decoded._id || decoded.userId;
+      }
+    }
+
+    if (!userId) {
+      console.error("❌ Missing userId");
+      return res.status(400).json({ success: false, error: "User authentication required" });
+    }
+
+    const { accessToken, pageId } = await getPageConfig(userId);
+
+    console.log("✅ Page Config:", { pageId, hasToken: !!accessToken });
+
+    // ✅ Fetch actual Page Info from Facebook Graph API
+    const fbUrl = `https://graph.facebook.com/v19.0/${pageId}?fields=id,name,category,followers_count,fan_count,picture&access_token=${accessToken}`;
+
+    console.log("📡 Requesting:", fbUrl);
+
+    const fbResponse = await axios.get(fbUrl);
+
+    console.log("✅ Facebook API Response:", fbResponse.data);
+
+    res.status(200).json({
+      success: true,
+      data: {
+        id: fbResponse.data.id,
+        name: fbResponse.data.name,
+        category: fbResponse.data.category,
+        followers_count: fbResponse.data.followers_count || fbResponse.data.fan_count,
+        likes_count: fbResponse.data.fan_count,
+        picture: fbResponse.data.picture?.data?.url,
+      },
+    });
+  } catch (error) {
+    console.error("❌ Error in getFacebookPageInfo:", error.message);
+    res.status(500).json({
+      success: false,
+      error: error.response?.data?.error?.message || error.message,
+    });
+  }
+};
+
 // Get Facebook page config
 export const getPageConfig = async (userId) => {
   try {

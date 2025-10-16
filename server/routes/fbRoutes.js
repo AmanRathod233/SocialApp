@@ -5,7 +5,8 @@ import path from "path";
 import { 
   uploadReelToFacebook, 
   uploadVideoToFacebook, 
-  uploadImageToFacebook, 
+  uploadImageToFacebook,
+  getFacebookPageInfo, 
   uploadTextPostToFacebook 
 } from "../controllers/FbuploadControllers.js";
 
@@ -42,6 +43,8 @@ const uploadImage = multer({
   limits: { fileSize: 10 * 1024 * 1024 }
 }).single('image');
 
+
+router.get("/getPageInfo", getFacebookPageInfo);
 // IMPORTANT: Make sure these route names match your frontend exactly
 router.post('/uploadReel', uploadVideo, uploadReelToFacebook);
 router.post('/uploadVideo', uploadVideo, uploadVideoToFacebook);

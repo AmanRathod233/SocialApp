@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const instance = axios.create({
-  baseURL: 'https://social-app-ku95.vercel.app/api',
+  baseURL: 'http://localhost:30000/api', // 👈 change this to your local backend port
   headers: {
     'Content-Type': 'application/json',
   },

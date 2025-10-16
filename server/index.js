@@ -2,8 +2,6 @@ import dotenv from "dotenv";
 import express from "express";
 import mongoose from "mongoose";
 import cors from "cors";
-import multer from "multer";
-import path from "path";
 
 import authRoutes from "./routes/authRoute.js";
 import metaRoutes from "./routes/metaRoute.js";
@@ -15,30 +13,26 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// ✅ CORS middleware
-const allowedOrigins = ["https://social-app-yqn4.vercel.app"];
-app.use(cors({
-  origin: allowedOrigins,
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  credentials: true,
-}));
+// ✅ Allowed origins (only localhost)
+const allowedOrigins = [
+  "http://localhost:5173"
+];
 
-// ✅ Handle preflight OPTIONS globally
-app.options("*", (req, res) => {
-  res.header("Access-Control-Allow-Origin", allowedOrigins.join(","));
-  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-  res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
-  res.sendStatus(200);
-});
+// ✅ CORS middleware
+app.use(cors({
+  origin: function(origin, callback) {
+    if (!origin) return callback(null, true); // server-to-server requests
+    if (allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("CORS not allowed"));
+    }
+  },
+  credentials: true
+}));
 
 // ✅ Body parser
 app.use(express.json());
-
-// ✅ Logging
-app.use((req, res, next) => {
-  console.log(`[${req.method}] ${req.url}`);
-  next();
-});
 
 // ✅ Routes
 app.use("/api/auth", authRoutes);

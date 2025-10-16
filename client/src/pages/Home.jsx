@@ -23,7 +23,7 @@ const Home = () => {
       navigate("/login");
       return;
     }
-    window.location.href = `https://social-app-ku95.vercel.app//api/meta/auth?token=${token}`;
+    window.location.href = `http://localhost:30000/api/meta/auth?token=${token}`;
   };
 
   const handleConnectInstagram = () => {
@@ -33,7 +33,7 @@ const Home = () => {
       navigate("/login");
       return;
     }
-    window.location.href = `https://social-app-ku95.vercel.app//api/instagram/auth?token=${token}`;
+    window.location.href = `http://localhost:30000/api/instagram/auth?token=${token}`;
   };
 
   const handleConnectFacebookPage = () => {
@@ -43,7 +43,7 @@ const Home = () => {
       navigate("/login");
       return;
     }
-    window.location.href = `https://social-app-ku95.vercel.app/api/facebook/connectPage?token=${token}`;
+    window.location.href = `http://localhost:30000/api/facebook/connectPage?token=${token}`;
   };
 
   // ======================= INFO BUTTONS =======================
@@ -53,7 +53,7 @@ const Home = () => {
 
     try {
       setLoading(true);
-      const response = await axios.get(`https://social-app-ku95.vercel.app/api/instagram/getAccountInfo`, {
+      const response = await axios.get(`http://localhost:30000/api/instagram/getAccountInfo`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -74,7 +74,7 @@ const Home = () => {
 
     try {
       setLoading(true);
-      const response = await axios.get(`https://social-app-ku95.vercel.app/api/facebook/getPageInfo`, {
+      const response = await axios.get(`http://localhost:30000/api/facebook/getPageInfo`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -140,7 +140,7 @@ const Home = () => {
     }
 
     try {
-      await axios.post(`https://social-app-ku95.vercel.app${endpoint}`, requestData, {
+      await axios.post(`http://localhost:30000${endpoint}`, requestData, {
         headers: requestHeaders,
         timeout: 120000,
       });
@@ -179,7 +179,7 @@ const Home = () => {
 
       {/* Facebook Page Info Block */}
       {pageInfo && (
-        <div style={{ backgroundColor: "#f5f6f7", border: "1px solid #dee2e6", borderRadius: "8px", padding: "15px", margin: "20px auto", maxWidth: "400px", textAlign: "left" }}>
+        <div style={{ backgroundColor: "#000", border: "1px solid #dee2e6", borderRadius: "8px", padding: "15px", margin: "20px auto", maxWidth: "400px", textAlign: "left" }}>
           <h4>📄 Facebook Page</h4>
           <p><strong>Name:</strong> {pageInfo.name}</p>
           <p><strong>ID:</strong> {pageInfo.id}</p>
